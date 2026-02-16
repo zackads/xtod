@@ -8,41 +8,40 @@
 import SwiftUI
 
 struct ChooseBGSourceStep: View {
+    @State private var bgFromAppleHealth: Bool = true
     let onChooseAppleHealth: () -> Void
     let onChooseManualEntry: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10.0) {
-            Text("I need to know your current blood sugar so we can make recommendations about your training.")
-            Text("I can check to see if your blood sugar exists in Apple Health, or you can enter it manually.")
-            Text("What would you like to do?")
-            
-            Button {
-                onChooseAppleHealth()
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "heart.fill")
-                    
-                    Text("Automatically get my blood glucose from Apple Health")
+        Form {
+            Section("Where should your blood glucose readings come from?") {
+                Picker(
+                    "Blood glucose source",
+                    selection: $bgFromAppleHealth
+                ) {
+                    Text("I'll enter my blood glucose manually").tag(false)
+                    Text("Automatically get my blood glucsose from Apple Health").tag(true)
                 }
             }
-            .buttonStyle(.borderedProminent)
-            
-            Button {
-                onChooseManualEntry()
-            } label: {
-                HStack(spacing: 8) {
-                    Image(systemName: "square.and.pencil")
-                    
-                    Text("I'll enter my blood glucose manually")
-                }
-            }
-            .buttonStyle(.borderedProminent)
+            .pickerStyle(.inline)
+            .labelsHidden()
         }
-        .padding()
+        .toolbar {
+            ToolbarItem(placement: .confirmationAction) {
+                Button("Continue") {
+                    if bgFromAppleHealth {
+                        onChooseAppleHealth()
+                    } else {
+                        onChooseManualEntry()
+                    }
+                }
+            }
+        }
     }
 }
 
 #Preview {
-    ChooseBGSourceStep(onChooseAppleHealth: { }, onChooseManualEntry: { })
+    NavigationStack {
+        ChooseBGSourceStep(onChooseAppleHealth: { }, onChooseManualEntry: { })
+    }
 }

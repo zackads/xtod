@@ -7,8 +7,29 @@
 
 
 struct PreExerciseCondition {
-    var hypoHistory: [Hypo]
-    var foodHistory: [Food]
-    var bloodGlucoseHistory: [BloodGlucoseReading]
-    var ketoneHistory: [KetoneReading]
+    var bgReadings: [BloodGlucoseReading]
+    var ketoneReadings: [KetoneReading]
+    var hypoInLast24Hours: Hypo?
+    
+    var mostRecentBGReading: BloodGlucoseReading? {
+        get {
+            return bgReadings.last
+        }
+        set {
+            guard let newValue else { return }
+            
+            bgReadings.append(newValue)
+        }
+    }
+    
+    var mostRecentKetoneReading: KetoneReading? {
+        get {
+            return ketoneReadings.last
+        }
+        set {
+            guard let newValue else { return }
+            
+            ketoneReadings.append(newValue)
+        }
+    }
 }

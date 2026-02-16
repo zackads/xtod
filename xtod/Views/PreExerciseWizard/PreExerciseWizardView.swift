@@ -11,26 +11,26 @@ import Charts
 private enum PreExerciseWizardStep: Hashable {
     case getBGFromAppleHealth
     case enterBGManually
-    case checkForHypoRisk
+    case checkForHypoRisk(readings: [BloodGlucoseReading])
+    case checkHypoSeverity
+    case checkForKetones
+    case recommendExerciseCOA
 }
 
 struct PreExerciseWizardView: View {
-    
-    @State private var viewModel = PreExericseWizardViewModel()
     @State private var path: [PreExerciseWizardStep] = []
+    @State var preExerciseCondition: PreExerciseCondition = PreExerciseCondition(bgReadings: [], ketoneReadings: [])
     
     var body: some View {
         NavigationStack(path: $path) {
-            VStack(spacing: 20) {
-                ChooseBGSourceStep(
-                    onChooseAppleHealth: {
-                        print("Appending .getBGFromAppleHealth to path: ", path)
-                        path.append(.getBGFromAppleHealth)
-                        print("Path now: ", path)
-                    },
-                    onChooseManualEntry: { path.append(.enterBGManually) })
-            }
-            .padding()
+            ChooseBGSourceStep(
+                onChooseAppleHealth: {
+                    path.append(.getBGFromAppleHealth)
+                },
+                onChooseManualEntry: {
+                    path.append(.enterBGManually)
+                }
+            )
             .navigationTitle("Blood glucose")
             .navigationDestination(for: PreExerciseWizardStep.self) { step in
                 switch step {
@@ -38,22 +38,77 @@ struct PreExerciseWizardView: View {
                     GetBGFromAppleHealthStep(
                         viewModel: GetBGFromAppleHealthStepViewModel(),
                         onSuccess: { readings in
-                            print("Appending .checkForHypoRisk to path: ", path)
-                            path.append(.checkForHypoRisk)
-                            print("Path now: ", path)
+                            preExerciseCondition.bgReadings = readings
+                            
+                            path.append(.checkForHypoRisk(readings: readings))
                         },
-                        onFailure: { path.append(.enterBGManually) },
+                        onFailure: {
+                            path.append(.enterBGManually)
+                        },
                     )
                 case .enterBGManually:
-                    Text("Todo!")
-                case .checkForHypoRisk:
-                    Text("Todo!")
+                    EnterBGManuallyStep(
+                        onContinue: { bgValue in
+                            preExerciseCondition.bgReadings.append(
+                                BloodGlucoseReading(timestamp: Date(), value: bgValue)
+                            )
+                            
+                            if bgValue < 4.0 {
+                                path.append(.recommendExerciseCOA)
+                            }
+                            
+                            path.append(.checkForHypoRisk(readings: preExerciseCondition.bgReadings))
+                        }
+                    )
+                case .checkForHypoRisk(let readings):
+                    CheckForHypoRiskStep(
+                        readings: readings,
+                        onNoHypoLast24Hrs: {
+                            if let reading = preExerciseCondition.mostRecentBGReading {
+                                if reading.value > 15 {
+                                    path.append(.checkForKetones)
+                                } else {
+                                    path.append(.recommendExerciseCOA)
+                                }
+                            }
+                        },
+                        onHypoLast24Hrs: {
+                            path.append(.checkHypoSeverity)
+                        },
+                    )
+                case .checkForKetones:
+                    CheckForKetonesStep(
+                        onContinue: { ketonesValue in
+                            preExerciseCondition.mostRecentKetoneReading = KetoneReading(timestamp: Date(), value: ketonesValue)
+                            path.append(.recommendExerciseCOA)
+                        }
+                    )
+                case .recommendExerciseCOA:
+                    RecommendExerciseCOAStep(preExerciseCondition: preExerciseCondition)
+                case .checkHypoSeverity:
+                    CheckHypoSeverityStep(
+                        onSelfTreated: {
+                            preExerciseCondition.hypoInLast24Hours = Hypo(requiredAssistance: false)
+                            path.append(.recommendExerciseCOA)
+                        },
+                        onSevere: {
+                            preExerciseCondition.hypoInLast24Hours = Hypo(requiredAssistance: true)
+                            path.append(.recommendExerciseCOA)
+                        }
+                    )
                 }
             }
         }
     }
+    
+    func recordHypoInLast24Hours(requiredAssistance: Bool, timestamp: Date?) -> Void {
+        preExerciseCondition.hypoInLast24Hours = Hypo(
+            requiredAssistance: requiredAssistance,
+            timestamp: timestamp
+        )
+    }
 }
 
-#Preview("Choosing BG source") {
+#Preview {
     PreExerciseWizardView()
 }

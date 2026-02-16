@@ -162,13 +162,21 @@ final class HealthDataViewModelMock: GetBGFromAppleHealthStepViewModel {
 }
 
 #Preview("Authorized, stale data") {
-    let readings = [BloodGlucoseReading(timestamp: Date().addingTimeInterval(-24 * 60 * 60), unit: BloodGlucoseReading.Unit.mmolL, value: 6.5)]
+    let readings = [
+        BloodGlucoseReading(
+            timestamp: Date().addingTimeInterval(-24 * 60 * 60),
+            value: 6.5,
+            
+        )
+    ]
     let vm = HealthDataViewModelMock(state: .HKAuthorizedButStaleData, readings: readings)
     GetBGFromAppleHealthStep(viewModel: vm, onSuccess: { _ in }, onFailure: { })
 }
 
 #Preview("Authorized, fresh data") {
-    let readings = [BloodGlucoseReading(timestamp: Date(), unit: BloodGlucoseReading.Unit.mmolL, value: 6.5)]
+    let readings = [
+        BloodGlucoseReading(timestamp: Date(), value: 6.5)
+    ]
     let vm = HealthDataViewModelMock(state: .HKAuthorizedWithCurrentData, readings: readings)
     GetBGFromAppleHealthStep(viewModel: vm, onSuccess: { _ in }, onFailure: { })
 }

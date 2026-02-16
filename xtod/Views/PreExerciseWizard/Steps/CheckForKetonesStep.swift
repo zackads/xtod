@@ -1,5 +1,5 @@
 //
-//  EnterBloodGlucoseManuallyStep.swift
+//  CheckForKetonesStep.swift
 //  xtod
 //
 //  Created by Zack Adlington on 06/02/2026.
@@ -7,29 +7,29 @@
 
 import SwiftUI
 
-struct EnterBGManuallyStep: View {
-    @State private var selectedBG: Int = 65
+struct CheckForKetonesStep: View {
+    @State private var selectedKetones: Int = 15
     let onContinue: (Double) -> Void
     
     var body: some View {
         Form {
-            Section("What's your current blood glucose (mmol/L)?") {
+            Section("What's your current ketone level in mmol/L?") {
                 Picker(
-                    "Blood glucose",
-                    selection: $selectedBG
+                    "Ketones",
+                    selection: $selectedKetones
                 ) {
-                    ForEach(20...250, id: \.self) { step in
+                    ForEach(0...30, id: \.self) { step in
                         let value = Double(step) / 10.0
                         Text(String(format: "%.1f", value)).tag(step)
                     }
                 }.pickerStyle(.wheel)
             }
         }
-        .navigationTitle("Blood glucose")
+        .navigationTitle("Ketones")
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
                 Button("Continue") {
-                    onContinue(Double(selectedBG) / 10.0)
+                    onContinue(Double(selectedKetones) / 10.0)
                 }
             }
         }
@@ -38,7 +38,6 @@ struct EnterBGManuallyStep: View {
 
 #Preview {
     NavigationStack {
-        EnterBGManuallyStep(onContinue: { _ in })
+        CheckForKetonesStep(onContinue: { _ in })
     }
-
 }

@@ -69,8 +69,7 @@ func fetchLast24HrsBloodGlucose() async -> [BloodGlucoseReading] {
         let readings: [BloodGlucoseReading] = samples.map {
             BloodGlucoseReading(
                 timestamp: $0.endDate,
-                unit: BloodGlucoseReading.Unit.mmolL,
-                value: Float($0.quantity.doubleValue(for: bloodGlucoseMMolLUnit))
+                value: $0.quantity.doubleValue(for: bloodGlucoseMMolLUnit)
             )
         }
         

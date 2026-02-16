@@ -13,6 +13,22 @@ struct BloodGlucoseReading: PointEvent, Hashable {
     }
     
     var timestamp: Date
-    var unit: Unit
-    var value: Float
+    var value: Double
+    var unit: Unit = .mmolL
+    
+    var hypoglycaemic: Bool {
+        unit == .mmolL && value < 4.0
+    }
+    
+    init(value: Double) {
+        self.timestamp = Date()
+        self.unit = Unit.mmolL
+        self.value = value
+    }
+    
+    init(timestamp: Date, value: Double) {
+        self.timestamp = timestamp
+        self.unit = Unit.mmolL
+        self.value = value
+    }
 }

@@ -13,5 +13,6 @@ struct KetoneReading: PointEvent {
     }
     
     var timestamp: Date
-    var unit: Unit
+    var value: Double
+    var unit: Unit = .mmolL
 }
