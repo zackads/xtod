@@ -9,6 +9,7 @@
 struct Recommendation {
     enum Kind {
         case fuel
+        case checkKetones
         case insulinCorrection
         case wait
         case goAgain
