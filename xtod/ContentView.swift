@@ -15,8 +15,12 @@ struct ContentView: View {
                 ChatGoalView()
             }
             
-            Tab("Exercise", systemImage: "figure.run") {
+            Tab("Plan", systemImage: "pencil") {
                 PreExerciseWizardView()
+            }
+            
+            Tab("Exercise", systemImage: "figure.run") {
+                BluetoothDeviceManageView()
             }
             
             Tab("Recover", systemImage: "fuelpump") {
